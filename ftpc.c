@@ -7,8 +7,6 @@
 */
 
 
-/* ftpc.c using TCP */
-
 /*#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -19,11 +17,9 @@
 #include <string.h>*/
 
 /* client program called with host name where server is run */
-main(int argc, char *argv[])
-{
+main(int argc, char *argv[]) {
 	/* validate input args */
-	if(argc != 4) 
-	{
+	if(argc != 4) {
 		fprintf(stderr, "Error: Include host in arguments, port, and local file"
 		 	" to transfer in arguments.\n");
 		exit(1);
@@ -81,10 +77,10 @@ main(int argc, char *argv[])
 	rewind(fp);
         
 	/* Send file size in 4 bytes */
-	send(sock, &num_bytes, 4, 0);
+	SEND(sock, &num_bytes, 4, 0);
 
 	/* Send file name in 20 bytes */
-	send(sock, file_name, 20, 0); 
+	SEND(sock, file_name, 20, 0); 
 
 	while(1)
 	{
@@ -94,7 +90,7 @@ main(int argc, char *argv[])
 		/* If read was successful send data. */
 		if(num_read > 0)
 		{
-		   	send(sock, buf, num_read, 0);
+		   	SEND(sock, buf, num_read, 0);
 		}
 
 		/* Handle end of file or read error */

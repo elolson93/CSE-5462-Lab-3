@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
     sin_addr.sin_port = htons(atoi(argv[1]));
 
     /* bind socket name to socket */
-    if(bind(sock, (struct sockaddr *)&sin_addr, sizeof(struct sockaddr_in)) < 0) {
+    if(BIND(sock, (struct sockaddr *)&sin_addr, sizeof(struct sockaddr_in)) < 0) {
       perror("Error binding stream socket");
       exit(1);
     }
@@ -64,14 +64,14 @@ int main(int argc, char* argv[]) {
   	} 
 
   	/* get the size of the payload */
-  	if (recv(msgsock, &fileSize, 4, 0) < 4) {
+  	if (RECV(msgsock, &fileSize, 4, 0) < 4) {
   		printf("%s\n", "Error: The size read returned less than 4");
   		exit(1);
   	}
 	printf("Recieved size is %d\n", fileSize);
 
   	/* get the name of the file */
-  	if (recv(msgsock, fileName, sizeof(fileName), 0) < 20) {
+  	if (RECV(msgsock, fileName, sizeof(fileName), 0) < 20) {
   		printf("%s\n", "Error: The name read returned less than 20");
   		exit(1);
   	}
@@ -93,7 +93,7 @@ int main(int argc, char* argv[]) {
   	int amtReadTotal = 0;
   	int amtRead = 0;
   	while (amtReadTotal < fileSize) { 
-  		amtRead = recv(msgsock, readBuffer, sizeof(readBuffer), 0);
+  		amtRead = RECV(msgsock, readBuffer, sizeof(readBuffer), 0);
   		amtReadTotal += amtRead;
   		if (amtRead < 0) {
   			fprintf(stderr, "%s\n", "Error reading from the connection stream. Server terminating");
