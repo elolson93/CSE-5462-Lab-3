@@ -1,0 +1,37 @@
+#include <stdio.h>
+#include <strings.h>
+#include <string.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#define MSS 1000
+#define localport = 9999
+
+main(void)
+{
+	int local_sock;
+
+        char srv_buf[MMS];
+
+        struct local_sockaddr_in name;
+
+        /*create local socket*/
+        local_sock = socket(AF_INET, SOCK_DGRAM, 0);
+        if(local_sock < 0) {
+		perror("opening datagram socket");
+		exit(1);
+    	}
+
+	/* create name with parameters and bind name to socket */
+        name.sin_family = AF_INET;
+	//set port to designated local host
+        name.sin_port = localport;
+	//set ip to localhost
+        name.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+        if(bind(local_sock, (struct sockaddr *)&name, sizeof(name)) < 0) {
+		perror("getting socket name");
+		exit(2);
+    	}
+
