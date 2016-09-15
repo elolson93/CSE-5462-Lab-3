@@ -38,12 +38,17 @@ int main(int argc, char* argv[]) {
     printf("TCP server waiting for remote connection from clients ...\n");
  
     /*initialize socket connection in unix domain*/
-    if((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0){
+    if((sock = SOCKET(AF_INET, SOCK_STREAM, 0)) < 0){
     perror("Error opening socket");
     exit(1);
     }
+
+    int enable = 1;
+//if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
+  //  perror("setsockopt(SO_REUSEADDR) failed");
   
     /* construct name of socket to send to */
+    memset(&sin_addr, 0, sizeof(sin_addr));
     sin_addr.sin_family = AF_INET;
     sin_addr.sin_addr.s_addr = INADDR_ANY;
     sin_addr.sin_port = htons(atoi(argv[1]));
@@ -53,6 +58,8 @@ int main(int argc, char* argv[]) {
       perror("Error binding stream socket");
       exit(1);
     }
+
+    printf("%s\n", "Made it here after the bind");
   
 	/* listen for socket connection and set max opened socket connetions to 5 */
 	listen(sock, 5);
@@ -64,7 +71,7 @@ int main(int argc, char* argv[]) {
   	} 
 
   	/* get the size of the payload */
-  	if (RECV(msgsock, &fileSize, 4, 0) < 4) {
+  	if (RECV(/*msgsock*/sock, &fileSize, 4, 0) < 4) {
   		printf("%s\n", "Error: The size read returned less than 4");
   		exit(1);
   	}

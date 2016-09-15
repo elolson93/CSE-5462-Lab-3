@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
     int amtRecvd = 0;
 
     while(1) {
-
+printf("%s\n", "In the while");
         // clear the set 
         FD_ZERO(&readfds);
 
@@ -102,6 +102,7 @@ int main(int argc, char *argv[])
             fprintf(stderr, "%s\n", "There was an issue with select() in tcpd");
             exit(1);
         }
+        printf("%s\n", "Got something from a socket");
         //Grab data from any socket that is ready
         if (FD_ISSET(local_sock, &readfds)) {
             //receive data from the local socket
@@ -128,7 +129,7 @@ int main(int argc, char *argv[])
 
                 int* port_value = (int*)(&local_buf[5]);
                 serverPort = *port_value;
-                local_server_name.sin_port = serverPort;
+                local_server_name.sin_port = htons(serverPort);
 
                 printf("MAX DATA: %d, PORT: %d\n", ftpsMaxData, serverPort);
 

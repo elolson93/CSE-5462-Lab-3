@@ -40,7 +40,7 @@ int SOCKET(int domain, int type, int protocol) {
 }
 
 int BIND(int socket, struct sockaddr *my_addr, socklen_t addrlen) {
-        return bind(socket, (struct sockaddr *)&my_addr, addrlen);
+        return bind(socket, (struct sockaddr *)my_addr, addrlen);
 }
 
 ssize_t SEND(int socket, const void* buffer, size_t length, int flags) {
@@ -80,6 +80,11 @@ ssize_t RECV(int socket, void* buffer, size_t length, int flags) {
 	 	(struct sockaddr *)&daemon_addr, sizeof(daemon_addr));
 
 	//recieve from local socket in tcpd
-	return recvfrom(socket, buffer, length, flags, NULL, NULL);
+	int temp = -1;
+	while(temp == -1) {
+		temp = recvfrom(socket, buffer, length, flags, NULL, NULL);
+	}
+	printf("The capital recvfrom is returning %d\n", temp);
+	return temp;
 }
 
