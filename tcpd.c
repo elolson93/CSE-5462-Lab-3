@@ -78,7 +78,7 @@ int main(void)
     // server_name.sin_port = -1;
     // server_name.sin_addr = atoi(LOCAL_ADDRESS);
     //to keep track of the maximum amount of data the server can accept
-    //int ftpsMaxData = -1;
+    int ftpsMaxData = -1;
     //to keep track of the amount of data received
     int amtRecvd = 0;
 
@@ -109,7 +109,8 @@ int main(void)
 
                 //remove the header
                 char* local_buf_no_header = local_buf + 1;
-                sendto(remote_socket, local_buf_no_header, sizeof(local_buf_no_header), flags, 
+                printf("%s\n", local_buf_no_header);
+                sendto(remote_sock, local_buf_no_header, amtRecvd - 1, 0, 
                     (struct sockaddr *)&remote_name, sizeof(remote_name));
 
             } else if (local_buf[0] == '0') { 
@@ -124,7 +125,7 @@ int main(void)
                 //get the port number that it's accepting data on
                 //server_name.sin_port = ;
 
-                
+
                 //get amount of data ftps can accept
                 //ftpsMaxData = ;
                 //get the port number that it's accepting data on

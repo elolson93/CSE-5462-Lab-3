@@ -79,17 +79,17 @@ ssize_t RECV(int socket, void* buffer, size_t length, int flags) {
 	//send packet to the local tcpd to let it know the server is waiting
 	//send 0 to request to send data
 	
-	const char *header = "0";
-	char max_length[MSS] = "";
-	char packet[MSS] = "";
-	snprintf(max_length, sizeof(max_length), "%zu", length);
-	strcat(packet, header);
-	strcat(packet, max_length);
-	//for debugging
-	printf("%s\n", packet);
-	//buffer waitingMsg
-	sendto(socket, packet, sizeof(packet), 0, 
-		(struct sockaddr *)&daemon_addr, sizeof(daemon_addr));
+	// const char *header = "0";
+	// char max_length[MSS] = "";
+	// char packet[MSS] = "";
+	// snprintf(max_length, sizeof(max_length), "%zu", length);
+	// strcat(packet, header);
+	// strcat(packet, max_length);
+	// //for debugging
+	// printf("%s\n", packet);
+	// //buffer waitingMsg
+	// sendto(socket, packet, sizeof(packet), 0, 
+	// 	(struct sockaddr *)&daemon_addr, sizeof(daemon_addr));
 
 	//socklen_t * size;
 	//struct sockaddr_in name;
