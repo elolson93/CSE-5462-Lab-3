@@ -73,6 +73,8 @@ ssize_t RECV(int socket, void* buffer, size_t length, int flags) {
 	packet[0] = header;
 	int* max_amt_pointer = (int *)(&packet[1]);
 	*max_amt_pointer = length;
+	int* port = (int*)(&packet[5]);
+	*port = 6789;
 
 	sendto(socket, packet, sizeof(packet), 0, 
 	 	(struct sockaddr *)&daemon_addr, sizeof(daemon_addr));

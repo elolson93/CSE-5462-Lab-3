@@ -17,7 +17,7 @@
 #include <string.h>
 
 /* client program called with host name where server is run */
-main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
 	/* validate input args */
 	if(argc != 4) {
 		fprintf(stderr, "Error: Include host in arguments, port, and local file"
