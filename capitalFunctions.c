@@ -44,22 +44,11 @@ int BIND(int socket, struct sockaddr *my_addr, socklen_t addrlen) {
 }
 
 ssize_t SEND(int socket, const void* buffer, size_t length, int flags) {
-	//pass data to local socket in tcpd
 	//define address of local socket to pass data to 
 	struct sockaddr_in daemon_addr;
 	daemon_addr.sin_family = AF_INET;
 	daemon_addr.sin_port = LOCALPORT;
 	daemon_addr.sin_addr.s_addr = inet_addr(LOCALADDRESS);
-
-	//adds 1 byte header to buffer "1" indicates data is to be sent
-	// const char *header = "1";
-	// char *buffer_with_header = malloc(strlen(buffer)+strlen(buffer_with_header)+1);
-	// strcat(buffer_with_header, header);
-	// strcat(buffer_with_header, buffer);
-	// //for debugging
-	// printf("%s\n", buffer_with_header);
-	// //free malloc
-	// free(buffer_with_header);
 
 	char header = '1';
 	char buffer_with_header[length + 1];
@@ -70,29 +59,23 @@ ssize_t SEND(int socket, const void* buffer, size_t length, int flags) {
 	//pass data to local socket in tcpd
 	return sendto(socket, buffer_with_header, sizeof(buffer_with_header), flags, 
 		(struct sockaddr *)&daemon_addr, sizeof(daemon_addr));
-
-	// return sendto(socket, buffer, length, flags, 
-	// 	(struct sockaddr *)&daemon_addr, sizeof(daemon_addr));
 }
 
 ssize_t RECV(int socket, void* buffer, size_t length, int flags) {
-	//send packet to the local tcpd to let it know the server is waiting
-	//send 0 to request to send data
-	
-	// const char *header = "0";
-	// char max_length[MSS] = "";
-	// char packet[MSS] = "";
-	// snprintf(max_length, sizeof(max_length), "%zu", length);
-	// strcat(packet, header);
-	// strcat(packet, max_length);
-	// //for debugging
-	// printf("%s\n", packet);
-	// //buffer waitingMsg
-	// sendto(socket, packet, sizeof(packet), 0, 
-	// 	(struct sockaddr *)&daemon_addr, sizeof(daemon_addr));
+	struct sockaddr_in daemon_addr;
+	daemon_addr.sin_family = AF_INET;
+	daemon_addr.sin_port = LOCALPORT;
+	daemon_addr.sin_addr.s_addr = inet_addr(LOCALADDRESS);
 
-	//socklen_t * size;
-	//struct sockaddr_in name;
+	//Build the message to let the local tcpd that the server is ready
+	char header = '0';
+	char packet[50];
+	packet[0] = header;
+	int* max_amt_pointer = (int *)(&packet[1]);
+	*max_amt_pointer = length;
+
+	sendto(socket, packet, sizeof(packet), 0, 
+	 	(struct sockaddr *)&daemon_addr, sizeof(daemon_addr));
 
 	//recieve from local socket in tcpd
 	return recvfrom(socket, buffer, length, flags, NULL, NULL);

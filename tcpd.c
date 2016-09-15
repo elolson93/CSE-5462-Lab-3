@@ -110,30 +110,20 @@ int main(void)
                 //remove the header
                 char* local_buf_no_header = local_buf + 1;
                 printf("%s\n", local_buf_no_header);
+
                 sendto(remote_sock, local_buf_no_header, amtRecvd - 1, 0, 
                     (struct sockaddr *)&remote_name, sizeof(remote_name));
 
             } else if (local_buf[0] == '0') { 
                 printf("%s\n", "Just received a message from the server");
 
-                char * max_length_string = local_buf+1;
+                int* max_length = (int*)(&local_buf[1]); 
+                ftpsMaxData = *max_length;
 
-                //get amount of data ftps can accept
-                ftpsMaxData = atoi(max_length_string);
-
-
-                //get the port number that it's accepting data on
-                //server_name.sin_port = ;
-
-
-                //get amount of data ftps can accept
-                //ftpsMaxData = ;
-                //get the port number that it's accepting data on
-                //server_name.sin_port = ;
-
+                printf("MAX DATA: %d\n", ftpsMaxData);
              } else {
-            //     fprintf(stderr, "%s\n", "Message from unknown source");
-            //     exit(1);
+                fprintf(stderr, "%s\n", "Message from unknown source");
+                 exit(1);
              } 
         } 
         if (FD_ISSET(remote_sock, &readfds)) {
