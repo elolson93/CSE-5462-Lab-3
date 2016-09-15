@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
 	listen(sock, 5);
   
   	/* accept a connection in socket msgsocket */ 
-  	if((msgsock = accept(sock, (struct sockaddr *)NULL, (socklen_t *)NULL)) == -1) { 
+  	if((msgsock = ACCEPT(sock, (struct sockaddr *)NULL, (socklen_t *)NULL)) == -1) { 
     	perror("Error connecting stream socket");
     	exit(1);
   	} 
