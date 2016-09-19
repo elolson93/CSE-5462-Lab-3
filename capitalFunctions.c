@@ -15,6 +15,14 @@
 #include <arpa/inet.h>
 #define LOCALPORT 9999
 #define LOCALADDRESS "127.0.0.1"
+#define MSS 1000
+
+
+typedef struct tcpdHeader {
+	int flag;
+	size_t maxData;
+	char body[MSS];
+} tcpdHeader;
 
 /* Prototypes for each function */ 
 ssize_t SEND(int socket, const void* buffer, size_t length, int flags);
@@ -28,7 +36,7 @@ int SOCKET(int domain, int type, int protocol);
 
 
 int ACCEPT(int sock, struct sockaddr *address, socklen_t *address_len) {
-	return 0;
+	return sock;
 }
 
 int CONNECT(int sockfd, const struct sockaddr *addr, socklen_t addrlen) {
@@ -36,7 +44,7 @@ int CONNECT(int sockfd, const struct sockaddr *addr, socklen_t addrlen) {
 }
 
 int SOCKET(int domain, int type, int protocol) {
-	return socket(AF_INET, SOCK_DGRAM, 0);
+	return socket(domain, SOCK_DGRAM, protocol);
 }
 
 int BIND(int socket, struct sockaddr *my_addr, socklen_t addrlen) {
@@ -44,47 +52,43 @@ int BIND(int socket, struct sockaddr *my_addr, socklen_t addrlen) {
 }
 
 ssize_t SEND(int socket, const void* buffer, size_t length, int flags) {
-	//define address of local socket to pass data to 
+	/* define address of local socket to pass data to */
 	struct sockaddr_in daemon_addr;
 	daemon_addr.sin_family = AF_INET;
-	daemon_addr.sin_port = LOCALPORT;
-	daemon_addr.sin_addr.s_addr = inet_addr(LOCALADDRESS);
+	daemon_addr.sin_port = htons(LOCALPORT);
+	daemon_addr.sin_addr.s_addr = INADDR_ANY;
 
-	char header = '1';
-	char buffer_with_header[length + 1];
-	buffer_with_header[0] = header;
-	strcat(buffer_with_header, buffer);
-	printf("%s\n", buffer_with_header);
+	tcpdHeader clientHeader;
+	clientHeader.flag = 1;
+	strcpy(clientHeader.body, buffer);
 
-	//pass data to local socket in tcpd
-	return sendto(socket, buffer_with_header, sizeof(buffer_with_header), flags, 
+	/* pass data to local socket in tcpd */
+	return sendto(socket, (char *)&clientHeader, sizeof(clientHeader), flags, 
 		(struct sockaddr *)&daemon_addr, sizeof(daemon_addr));
 }
 
 ssize_t RECV(int socket, void* buffer, size_t length, int flags) {
+
+	/*int troll_sock;
+	if((troll_sock = SOCKET(AF_INET, SOCK_DGRAM, 0)) < 0)
+	{
+		perror("Error opening socket");
+		exit(1);
+	}	
 	struct sockaddr_in daemon_addr;
 	daemon_addr.sin_family = AF_INET;
-	daemon_addr.sin_port = LOCALPORT;
-	daemon_addr.sin_addr.s_addr = inet_addr(LOCALADDRESS);
+	daemon_addr.sin_port = htons(LOCALPORT);
+	daemon_addr.sin_addr.s_addr = INADDR_ANY;
+	
+	tcpdHeader serverHeader;
+	serverHeader.flag = 0;
+	serverHeader.maxData = length;
+	
+	sendto(troll_sock, (char *)&serverHeader, sizeof(serverHeader), 0, (struct sockaddr *)&daemon_addr, sizeof(daemon_addr));*/
+	
 
-	//Build the message to let the local tcpd that the server is ready
-	char header = '0';
-	char packet[50];
-	packet[0] = header;
-	int* max_amt_pointer = (int *)(&packet[1]);
-	*max_amt_pointer = length;
-	int* port = (int*)(&packet[5]);
-	*port = 6789;
-
-	sendto(socket, packet, sizeof(packet), 0, 
-	 	(struct sockaddr *)&daemon_addr, sizeof(daemon_addr));
-
-	//recieve from local socket in tcpd
-	int temp = -1;
-	while(temp == -1) {
-		temp = recvfrom(socket, buffer, length, flags, NULL, NULL);
-	}
-	printf("The capital recvfrom is returning %d\n", temp);
+	/* RECEIVE DATA */
+	size_t temp;
+	temp = recvfrom(socket, buffer, length, 0, NULL, NULL);
 	return temp;
 }
-
