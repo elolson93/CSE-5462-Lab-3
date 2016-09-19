@@ -15,13 +15,15 @@
 #include <stdlib.h>
 #include <strings.h>
 #include <string.h>
+#define MSS 1000
+#define LOCALPORT 9999
+#define LOCALADDRESS "127.0.0.1"
 
 /* client program called with host name where server is run */
 int main(int argc, char *argv[]) {
 	/* validate input args */
-	if(argc != 4) {
-		fprintf(stderr, "Error: Include host in arguments, port, and local file"
-		 	" to transfer in arguments.\n");
+	if(argc < 1) {
+		fprintf(stderr, "Error: Include file name is arguments.\n");
 		exit(1);
 	}
 
@@ -30,11 +32,12 @@ int main(int argc, char *argv[]) {
 	int num_bytes;		      /* number of bytes of file to be sent */
 	int num_read;		      /* bytes read from file stream */
 	struct sockaddr_in sin_addr;  /* structure for socket name setup */
-	char * file_name = argv[3];   /* file name */
-	char buf[512] = {0};          /* bytes to send to server */
+	char * file_name = argv[1];   /* file name */
+	char buf[MSS] = {0};          /* bytes to send to server */
 	struct hostent *hp;	      /* host */
-	int port = atoi(argv[2]);     /* port number from args */
-  
+	
+	printf("%s\n\n", "TCP client preparing to send file...");
+
 	/* initialize socket connection in unix domain */
 	if((sock = SOCKET(AF_INET, SOCK_STREAM, 0)) < 0)
 	{
@@ -42,18 +45,10 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
-	/* get host */
-	hp = gethostbyname(argv[1]);
-	if(hp == 0) 
-	{
-    		fprintf(stderr, "%s: unknown host\n", argv[1]);
-    		exit(2);
-  	}
-
   	/* construct name of socket to send to */
-  	bcopy((void *)hp->h_addr, (void *)&sin_addr.sin_addr, hp->h_length);
   	sin_addr.sin_family = AF_INET;
-  	sin_addr.sin_port = htons(port); /* fixed by adding htons() */
+  	sin_addr.sin_port = 0; /* fixed by adding htons() */
+	sin_addr.sin_addr.s_addr = INADDR_ANY;
   
   	/* establish connection with server */
   	if(CONNECT(sock, (struct sockaddr *)&sin_addr, sizeof(struct sockaddr_in)) < 0) 
@@ -78,23 +73,30 @@ int main(int argc, char *argv[]) {
         
 	/* Send file size in 4 bytes */
 	SEND(sock, &num_bytes, 4, 0);
+	printf("Sent: %i bytes.\n\n", num_bytes);
+	sleep(0.1);
+	
 
 	/* Send file name in 20 bytes */
-	SEND(sock, file_name, 20, 0); 
+	SEND(sock, file_name, 20, 0);
+	printf("Sent: %s.\n\n", file_name);
+	sleep(0.1);
 
 	while(1)
 	{
 	  	/* Read file in chunks of 512 bytes */
-		num_read = fread(buf,1,512,fp);
+		num_read = fread(buf,1,MSS,fp);
 
 		/* If read was successful send data. */
 		if(num_read > 0)
 		{
 		   	SEND(sock, buf, num_read, 0);
+			printf("Sent: %s\n\n", buf);
+			sleep(0.1);
 		}
 
 		/* Handle end of file or read error */
-		if (num_read < 512)
+		if (num_read < MSS)
 		{
 		  	if (feof(fp)) 
 		  	{
@@ -107,6 +109,8 @@ int main(int argc, char *argv[]) {
 		  	}
 		}
 	}
+
+	printf("%s\n", "File Sent.");
 
 	/* Close file and connection */
 	close(fp);
