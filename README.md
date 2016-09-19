@@ -48,28 +48,28 @@ navigate to the location of that the program was installed above.
 
 First start the troll process on the local machine.
 
-~$ Troll <local troll port>
+~$ Troll 'local troll port'
 
-Here, you need to designate what port troll will run with <local troll port>.
+Here, you need to designate what port troll will run with 'local troll port'.
 
 
 Next start the tcpd process on the local machine.
 
-~$ tcpd 1 <local host> <local troll port> <remote host> <remote port>
+~$ tcpd 1 'local host' 'local troll port' 'remote host' 'remote port'
 
 Here, the first argument is 1 to indicate the daemon is run on the local
-machine. <local host> is the host of the local machine. <local troll port>
-is the port from above the troll is running on. <remote host> is the host
-name of the remote machine. <remote_port> is the port you designate for
+machine. 'local host' is the host of the local machine. 'local troll port'
+is the port from above the troll is running on. 'remote host' is the host
+name of the remote machine. 'remote_port' is the port you designate for
 communication between troll and the remote machine.
 
 
 Next start the tcpd process on the remote machine.
 
-~$ tcpd 0 <remote port>
+~$ tcpd 0 'remote port'
 
 Here, the first argument is 0 to indicate the daemon is run on the remote
-machine. <remote port> is the port specified above.
+machine. 'remote port' is the port specified above.
 
 
 Next start the server on the remote machine. 
@@ -79,9 +79,9 @@ Next start the server on the remote machine.
 
 Lastly, start the client process on the local machine.
 
-~ftpc <local-file-to-transfer>
+~ftpc 'local-file-to-transfer'
 
-Here, <local-file-to-transfer> is the name (and path if applicable) of 
+Here, 'local-file-to-transfer' is the name (and path if applicable) of 
 the local file on the client machine you wish to send to the server.
 
 The file will be sent from the client to the local tcpd, local tcpd to troll,
